@@ -1,0 +1,50 @@
+# Hardware Tester Configuration File
+# ==================================
+# Copy this file to config.toml and modify as needed.
+
+# Relay Board Configuration
+[relay]
+port = "COM3"  # Windows: COM3, COM4, etc. | Linux: /dev/ttyUSB0, etc.
+
+# DUT Serial Port Configuration
+[dut]
+# Simple format - list of port names (uses default 115200 baud):
+# ports = ["COM4", "COM5"]
+
+# Detailed format - per-port configuration:
+ports = [
+    { port = "COM4", baud_rate = 115200, name = "main_uart" },
+    { port = "COM5", baud_rate = 9600, name = "debug_uart" },
+]
+
+# Logging Configuration
+[logging]
+directory = "./logs"        # Log file output directory
+timestamp_lines = true      # Prepend timestamp to each logged line
+
+# Sequence Configuration (for file mode: hwtester -c config.toml -f)
+[sequence]
+# Can be a single comma-separated string:
+# commands = "R1:ON,D500,R2:ON,D1000,R1:OFF,R2:OFF"
+
+# Or an array for better readability:
+commands = [
+    "R1:ON",      # Power on DUT
+    "D2000",      # Wait 2 seconds for boot
+    "R2:ON",      # Enable test signal
+    "D5000",      # Run test for 5 seconds
+    "R2:OFF",     # Disable test signal
+    "D500",       # Brief delay
+    "R1:OFF",     # Power off DUT
+]
+
+# Command Reference:
+# ------------------
+# R<n>:ON   - Turn relay n on (n = 0-15)
+# R<n>:OFF  - Turn relay n off (n = 0-15)
+# D<ms>     - Delay for specified milliseconds
+#
+# Examples:
+#   R0:ON    - Turn on relay 0
+#   R15:OFF  - Turn off relay 15
+#   D1000    - Wait 1 second
