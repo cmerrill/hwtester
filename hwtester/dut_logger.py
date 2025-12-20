@@ -74,7 +74,9 @@ class DUTLogger:
                     # Process complete lines
                     while b"\n" in buffer:
                         line, buffer = buffer.split(b"\n", 1)
-                        self._write_line(line.decode("utf-8", errors="replace"))
+                        # Strip \r and whitespace from line endings
+                        decoded_line = line.decode("utf-8", errors="replace").rstrip()
+                        self._write_line(decoded_line)
                 else:
                     # Small sleep to prevent busy-waiting
                     self._stop_event.wait(timeout=0.01)
