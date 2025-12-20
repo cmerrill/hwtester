@@ -122,6 +122,26 @@ class RelayController:
         """Turn relay OFF."""
         self.set_relay(relay_num, on=False)
 
+    def reset_all_relays(self) -> None:
+        """
+        Reset all relays to OFF state.
+
+        Sends the command to turn off all 16 relays at once.
+
+        Raises:
+            RuntimeError: If not connected
+            serial.SerialException: On communication error
+        """
+        if not self._serial or not self._serial.is_open:
+            raise RuntimeError("Not connected to relay board")
+
+        # Command to turn all relays off: :FE0F00000010020000E1
+        command = b":FE0F00000010020000E1\r\n"
+
+        with self._lock:
+            self._serial.write(command)
+            self._serial.flush()
+
     def send_raw(self, data: bytes) -> None:
         """
         Send raw bytes to relay port (for debugging/advanced use).

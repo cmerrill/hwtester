@@ -14,6 +14,7 @@ class InteractiveMode:
 
     Commands:
         r<N> on/off   - Turn relay N on or off (e.g., "r1 on", "r16 off")
+        I             - Reset all relays to OFF
         d<ms>         - Delay for milliseconds
         raw <hex>     - Send raw hex bytes to relay port
         seq <cmds>    - Execute command sequence
@@ -44,6 +45,7 @@ Interactive Hardware Tester Commands:
 =====================================
   r<N> on       Turn relay N on (1-16)
   r<N> off      Turn relay N off (1-16)
+  I             Reset all relays to OFF
   d<ms>         Delay for milliseconds
   raw <hex>     Send raw hex bytes to relay port
   seq <cmds>    Execute sequence (e.g., seq R1:ON,D500,R1:OFF)
@@ -54,6 +56,7 @@ Interactive Hardware Tester Commands:
 Examples:
   r1 on         Turn on relay 1
   r16 off       Turn off relay 16
+  I             Turn off all relays
   d1000         Wait 1 second
   raw FE050001FF00FD
   seq R1:ON,D500,R1:OFF
@@ -95,6 +98,20 @@ Examples:
                 print(f"Relay port: {self.relay.port} (connected)")
             else:
                 print("Relay port: not connected")
+            return True
+
+        # Reset command: I
+        if line_lower == "i":
+            if not self.relay:
+                print("Error: No relay port configured")
+                return True
+
+            try:
+                self.relay.reset_all_relays()
+                print("All relays reset to OFF")
+            except Exception as e:
+                print(f"Serial error: {e}")
+
             return True
 
         # Relay command: r1 on, r15 off, or ralias on/off

@@ -30,7 +30,15 @@ class DelayCommand:
         return f"D{self.duration_ms}"
 
 
-Command = Union[RelayCommand, DelayCommand]
+@dataclass
+class ResetCommand:
+    """Reset all relays to OFF."""
+
+    def __str__(self) -> str:
+        return "I"
+
+
+Command = Union[RelayCommand, DelayCommand, ResetCommand]
 
 
 class SequenceParser:
@@ -41,6 +49,9 @@ class SequenceParser:
 
     # Pattern for delay: D500, D1000, etc.
     DELAY_PATTERN = re.compile(r"^D(\d+)$", re.IGNORECASE)
+
+    # Pattern for reset: I
+    RESET_PATTERN = re.compile(r"^I$", re.IGNORECASE)
 
     @classmethod
     def parse(cls, sequence_str: str, relay_aliases: dict[str, int] = None) -> list[Command]:
@@ -95,6 +106,12 @@ class SequenceParser:
                 commands.append(DelayCommand(duration_ms=duration))
                 continue
 
+            # Try reset pattern
+            reset_match = cls.RESET_PATTERN.match(part)
+            if reset_match:
+                commands.append(ResetCommand())
+                continue
+
             raise ValueError(f"Invalid command: {part}")
 
         return commands
@@ -134,6 +151,9 @@ class SequenceExecutor:
 
             elif isinstance(cmd, DelayCommand):
                 time.sleep(cmd.duration_ms / 1000.0)
+
+            elif isinstance(cmd, ResetCommand):
+                self.relay.reset_all_relays()
 
     def execute_string(self, sequence_str: str) -> None:
         """Parse and execute a sequence string."""
