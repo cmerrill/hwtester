@@ -13,7 +13,7 @@ class InteractiveMode:
     Interactive command-line interface for manual control.
 
     Commands:
-        r<N> on/off   - Turn relay N on or off (e.g., "r1 on", "r15 off")
+        r<N> on/off   - Turn relay N on or off (e.g., "r1 on", "r16 off")
         d<ms>         - Delay for milliseconds
         raw <hex>     - Send raw hex bytes to relay port
         seq <cmds>    - Execute command sequence
@@ -42,8 +42,8 @@ class InteractiveMode:
         help_text = """
 Interactive Hardware Tester Commands:
 =====================================
-  r<N> on       Turn relay N on (0-15)
-  r<N> off      Turn relay N off (0-15)
+  r<N> on       Turn relay N on (1-16)
+  r<N> off      Turn relay N off (1-16)
   d<ms>         Delay for milliseconds
   raw <hex>     Send raw hex bytes to relay port
   seq <cmds>    Execute sequence (e.g., seq R1:ON,D500,R1:OFF)
@@ -53,7 +53,7 @@ Interactive Hardware Tester Commands:
 
 Examples:
   r1 on         Turn on relay 1
-  r0 off        Turn off relay 0
+  r16 off       Turn off relay 16
   d1000         Wait 1 second
   raw FE050001FF00FD
   seq R1:ON,D500,R1:OFF

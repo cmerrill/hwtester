@@ -69,7 +69,7 @@ def load_config(config_path: Path) -> Config:
         if "aliases" in relay_section:
             aliases = relay_section["aliases"]
             for name, relay_num in aliases.items():
-                if not isinstance(relay_num, int) or not 0 <= relay_num <= 15:
+                if not isinstance(relay_num, int) or not 1 <= relay_num <= 16:
                     raise ValueError(f"Relay alias '{name}' has invalid relay number: {relay_num}")
                 config.relay_aliases[name] = relay_num
 

@@ -16,7 +16,7 @@ class RelayController:
     - FE = record type marker
     - 05 = byte count
     - 00 = address high byte
-    - XX = relay number (00-0F)
+    - XX = relay number (00-0F, corresponding to user relays 1-16)
     - YY = state (FF=ON, 00=OFF)
     - 00 = padding
     - ZZ = checksum
@@ -26,8 +26,8 @@ class RelayController:
 
     RELAY_ON = 0xFF
     RELAY_OFF = 0x00
-    MIN_RELAY = 0
-    MAX_RELAY = 15
+    MIN_RELAY = 1
+    MAX_RELAY = 16
 
     def __init__(self, port: str, timeout: float = 1.0):
         """
@@ -69,14 +69,16 @@ class RelayController:
         Build Intel Hex format command for relay control.
 
         Args:
-            relay_num: Relay number (0-15)
+            relay_num: Relay number (1-16, will be converted to 0-15 for serial)
             state: RELAY_ON (0xFF) or RELAY_OFF (0x00)
 
         Returns:
             Complete command bytes including CRLF
         """
+        # Convert user relay number (1-16) to hardware relay number (0-15)
+        hardware_relay = relay_num - 1
         # Build the data portion: FE 05 00 [relay] [state] 00
-        data_bytes = bytes([0xFE, 0x05, 0x00, relay_num, state, 0x00])
+        data_bytes = bytes([0xFE, 0x05, 0x00, hardware_relay, state, 0x00])
         checksum = calculate_intel_hex_checksum(data_bytes)
 
         # Format as Intel Hex string
@@ -89,7 +91,7 @@ class RelayController:
         Set relay state.
 
         Args:
-            relay_num: Relay number (0-15)
+            relay_num: Relay number (1-16)
             on: True for ON, False for OFF
 
         Raises:

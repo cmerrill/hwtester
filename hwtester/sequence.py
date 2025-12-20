@@ -36,7 +36,7 @@ Command = Union[RelayCommand, DelayCommand]
 class SequenceParser:
     """Parses relay command sequences."""
 
-    # Pattern for relay command: R1:ON, R15:OFF, Ralias:ON, etc.
+    # Pattern for relay command: R1:ON, R16:OFF, Ralias:ON, etc.
     RELAY_PATTERN = re.compile(r"^R([a-z0-9_]+):(ON|OFF)$", re.IGNORECASE)
 
     # Pattern for delay: D500, D1000, etc.
@@ -82,8 +82,8 @@ class SequenceParser:
                     else:
                         raise ValueError(f"Unknown relay alias: {relay_id}")
 
-                if not 0 <= relay_num <= 15:
-                    raise ValueError(f"Relay number must be 0-15, got {relay_num}")
+                if not 1 <= relay_num <= 16:
+                    raise ValueError(f"Relay number must be 1-16, got {relay_num}")
 
                 commands.append(RelayCommand(relay_num=relay_num, on=on))
                 continue
