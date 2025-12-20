@@ -1,0 +1,75 @@
+# Relay Board Configuration
+[relay]
+port = "COM9"  # Windows: COM3, COM4, etc. | Linux: /dev/ttyUSB0, etc.
+
+# Optional: Define friendly names for relays
+# Use these aliases in commands instead of numbers
+[relay.aliases]
+dut1_reset = 2
+dut1_parent = 3
+dut1_pair_btn = 1
+dut2_reset = 7
+dut2_parent = 8
+dut2_pair_btn = 6
+dut3_reset = 15
+dut3_parent = 14
+dut3_pair_btn = 16
+
+# DUT Serial Port Configuration
+[dut]
+# Detailed format - per-port configuration:
+ports = [
+    { port = "COM5", baud_rate = 115200, name = "dut1" },
+    { port = "COM4", baud_rate = 115200, name = "dut2" },
+    { port = "COM3", baud_rate = 115200, name = "dut3" }
+]
+
+# Logging Configuration
+[logging]
+directory = "./logs"        # Log file output directory
+timestamp_lines = true      # Prepend timestamp to each logged line
+prefix = "pairing_test_"
+
+# Sequence Configuration (for file mode: hwtester -c config.toml -f)
+[sequence]
+# Can be a single comma-separated string:
+# commands = "R1:ON,D500,R2:ON,D1000,R1:OFF,R2:OFF"
+
+# Or an array for better readability:
+commands = [
+    # Initialize everything!
+    "I",                    # Initialize the relays to OFF
+    "Rdut1_reset:ON",       # Put DUT1 in reset
+    "Rdut2_reset:ON",       # Put DUT2 in reset
+    "Rdut3_reset:ON",       # Put DUT3 in reset
+    "Rdut1_parent:ON",      # Set DUT1 as parent
+    "D100",
+
+    # Wake up and go into pairing mode
+    "Rdut1_reset:OFF",      # Wake up DUT1
+    "Rdut2_reset:OFF",      # Wake up DUT2
+    "Rdut3_reset:OFF",      # Wake up DUT3
+    "D2000",                # Wait 2 seconds for booting
+    "Rdut1_pair_btn:ON",    # Start pairing at parent
+    "D300",                 # Wait for parent to change modes
+    "Rdut2_pair_btn:ON",    # Start pairing for child
+    "D30000",               # Delay 30s for child to timeout on failure.
+    "I",                    # Reinitialize the relays
+]
+
+# Command Reference:
+# ------------------
+# R<n>:ON       - Turn relay n on (n = 1-16)
+# R<n>:OFF      - Turn relay n off (n = 1-16)
+# R<alias>:ON   - Turn relay by alias on (if aliases defined)
+# R<alias>:OFF  - Turn relay by alias off (if aliases defined)
+# I             - Reset all relays to OFF
+# D<ms>         - Delay for specified milliseconds
+#
+# Examples:
+#   I                 - Turn off all relays (reset)
+#   R1:ON             - Turn on relay 1
+#   R16:OFF           - Turn off relay 16
+#   Rdut1_power:ON    - Turn on dut1_power alias (relay 1)
+#   Rdut1_reset:ON    - Turn on dut1_reset alias (relay 2)
+#   D1000             - Wait 1 second
