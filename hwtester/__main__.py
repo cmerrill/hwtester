@@ -50,6 +50,7 @@ def main() -> int:
             baud_rate=dut_config.baud_rate,
             timestamp_lines=config.timestamp_lines,
             port_name=dut_config.name,
+            log_prefix=config.log_prefix,
         )
         logger_manager.add_logger(logger)
 

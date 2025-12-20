@@ -91,6 +91,14 @@ Sequence format:
         help="Prepend timestamp to each logged line",
     )
 
+    # Log file prefix
+    parser.add_argument(
+        "-p",
+        "--log-prefix",
+        metavar="PREFIX",
+        help="Prefix to prepend to log filenames",
+    )
+
     # Operating modes (mutually exclusive)
     mode_group = parser.add_mutually_exclusive_group()
 

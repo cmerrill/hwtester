@@ -24,6 +24,7 @@ class DUTLogger:
         baud_rate: int = 115200,
         timestamp_lines: bool = False,
         port_name: Optional[str] = None,
+        log_prefix: Optional[str] = None,
     ):
         """
         Initialize DUT logger.
@@ -34,12 +35,14 @@ class DUTLogger:
             baud_rate: Serial baud rate (default 115200)
             timestamp_lines: If True, prepend timestamp to each line
             port_name: Friendly name for log file (defaults to port name)
+            log_prefix: Prefix to prepend to log filenames
         """
         self.port = port
         self.log_dir = Path(log_dir)
         self.baud_rate = baud_rate
         self.timestamp_lines = timestamp_lines
         self.port_name = port_name or port.replace("/", "_").replace("\\", "_").replace(":", "")
+        self.log_prefix = log_prefix
 
         self._serial: Optional[serial.Serial] = None
         self._log_file: Optional[TextIO] = None
@@ -51,7 +54,10 @@ class DUTLogger:
     def _generate_log_filename(self) -> Path:
         """Generate log filename with timestamp."""
         timestamp = format_timestamp()
-        filename = f"{self.port_name}_{timestamp}.log"
+        if self.log_prefix:
+            filename = f"{self.log_prefix}{self.port_name}_{timestamp}.log"
+        else:
+            filename = f"{self.port_name}_{timestamp}.log"
         return self.log_dir / filename
 
     def _log_loop(self) -> None:

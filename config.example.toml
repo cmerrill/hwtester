@@ -9,11 +9,11 @@ port = "COM3"  # Windows: COM3, COM4, etc. | Linux: /dev/ttyUSB0, etc.
 # Optional: Define friendly names for relays
 # Use these aliases in commands instead of numbers
 [relay.aliases]
-dut1_power = 0
-dut1_reset = 1
-dut2_power = 2
-dut2_reset = 3
-test_signal = 4
+dut1_power = 1
+dut1_reset = 2
+dut2_power = 3
+dut2_reset = 4
+test_signal = 5
 
 # DUT Serial Port Configuration
 [dut]
@@ -30,6 +30,7 @@ ports = [
 [logging]
 directory = "./logs"        # Log file output directory
 timestamp_lines = true      # Prepend timestamp to each logged line
+prefix = "test_"            # Optional: Prefix for log filenames (e.g., "test_" -> "test_main_uart_20250115_143022.log")
 
 # Sequence Configuration (for file mode: hwtester -c config.toml -f)
 [sequence]
@@ -38,6 +39,7 @@ timestamp_lines = true      # Prepend timestamp to each logged line
 
 # Or an array for better readability:
 commands = [
+    "I",          # Initialize: turn off all relays
     "R1:ON",      # Power on DUT
     "D2000",      # Wait 2 seconds for boot
     "R2:ON",      # Enable test signal
@@ -49,15 +51,17 @@ commands = [
 
 # Command Reference:
 # ------------------
-# R<n>:ON       - Turn relay n on (n = 0-15)
-# R<n>:OFF      - Turn relay n off (n = 0-15)
+# R<n>:ON       - Turn relay n on (n = 1-16)
+# R<n>:OFF      - Turn relay n off (n = 1-16)
 # R<alias>:ON   - Turn relay by alias on (if aliases defined)
 # R<alias>:OFF  - Turn relay by alias off (if aliases defined)
+# I             - Reset all relays to OFF
 # D<ms>         - Delay for specified milliseconds
 #
 # Examples:
-#   R0:ON             - Turn on relay 0
-#   R15:OFF           - Turn off relay 15
-#   Rdut1_power:ON    - Turn on dut1_power alias (relay 0)
-#   Rdut1_reset:ON    - Turn on dut1_reset alias (relay 1)
+#   I                 - Turn off all relays (reset)
+#   R1:ON             - Turn on relay 1
+#   R16:OFF           - Turn off relay 16
+#   Rdut1_power:ON    - Turn on dut1_power alias (relay 1)
+#   Rdut1_reset:ON    - Turn on dut1_reset alias (relay 2)
 #   D1000             - Wait 1 second

@@ -35,6 +35,7 @@ class Config:
     # Logging settings
     log_dir: Path = field(default_factory=lambda: Path("./logs"))
     timestamp_lines: bool = False
+    log_prefix: Optional[str] = None
 
     # Sequence (for file mode)
     sequence: Optional[str] = None
@@ -97,6 +98,7 @@ def load_config(config_path: Path) -> Config:
         if "directory" in log_section:
             config.log_dir = Path(log_section["directory"])
         config.timestamp_lines = log_section.get("timestamp_lines", False)
+        config.log_prefix = log_section.get("prefix")
 
     # Sequence
     if "sequence" in data:
@@ -134,5 +136,8 @@ def merge_config_with_args(config: Config, args) -> Config:
 
     if hasattr(args, "timestamp_lines") and args.timestamp_lines:
         config.timestamp_lines = True
+
+    if hasattr(args, "log_prefix") and args.log_prefix:
+        config.log_prefix = args.log_prefix
 
     return config
