@@ -6,6 +6,15 @@
 [relay]
 port = "COM3"  # Windows: COM3, COM4, etc. | Linux: /dev/ttyUSB0, etc.
 
+# Optional: Define friendly names for relays
+# Use these aliases in commands instead of numbers
+[relay.aliases]
+dut1_power = 0
+dut1_reset = 1
+dut2_power = 2
+dut2_reset = 3
+test_signal = 4
+
 # DUT Serial Port Configuration
 [dut]
 # Simple format - list of port names (uses default 115200 baud):
@@ -40,11 +49,15 @@ commands = [
 
 # Command Reference:
 # ------------------
-# R<n>:ON   - Turn relay n on (n = 0-15)
-# R<n>:OFF  - Turn relay n off (n = 0-15)
-# D<ms>     - Delay for specified milliseconds
+# R<n>:ON       - Turn relay n on (n = 0-15)
+# R<n>:OFF      - Turn relay n off (n = 0-15)
+# R<alias>:ON   - Turn relay by alias on (if aliases defined)
+# R<alias>:OFF  - Turn relay by alias off (if aliases defined)
+# D<ms>         - Delay for specified milliseconds
 #
 # Examples:
-#   R0:ON    - Turn on relay 0
-#   R15:OFF  - Turn off relay 15
-#   D1000    - Wait 1 second
+#   R0:ON             - Turn on relay 0
+#   R15:OFF           - Turn off relay 15
+#   Rdut1_power:ON    - Turn on dut1_power alias (relay 0)
+#   Rdut1_reset:ON    - Turn on dut1_reset alias (relay 1)
+#   D1000             - Wait 1 second

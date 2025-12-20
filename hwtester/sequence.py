@@ -36,19 +36,20 @@ Command = Union[RelayCommand, DelayCommand]
 class SequenceParser:
     """Parses relay command sequences."""
 
-    # Pattern for relay command: R1:ON, R15:OFF, etc.
-    RELAY_PATTERN = re.compile(r"^R(\d+):(ON|OFF)$", re.IGNORECASE)
+    # Pattern for relay command: R1:ON, R15:OFF, Ralias:ON, etc.
+    RELAY_PATTERN = re.compile(r"^R([a-z0-9_]+):(ON|OFF)$", re.IGNORECASE)
 
     # Pattern for delay: D500, D1000, etc.
     DELAY_PATTERN = re.compile(r"^D(\d+)$", re.IGNORECASE)
 
     @classmethod
-    def parse(cls, sequence_str: str) -> list[Command]:
+    def parse(cls, sequence_str: str, relay_aliases: dict[str, int] = None) -> list[Command]:
         """
         Parse comma-separated sequence string.
 
         Args:
-            sequence_str: e.g., "R1:ON,D500,R1:OFF"
+            sequence_str: e.g., "R1:ON,D500,R1:OFF" or "Rdut1_reset:ON,D500,Rdut1_reset:OFF"
+            relay_aliases: Optional dict mapping alias names to relay numbers
 
         Returns:
             List of Command objects
@@ -57,6 +58,7 @@ class SequenceParser:
             ValueError: If sequence contains invalid commands
         """
         commands = []
+        relay_aliases = relay_aliases or {}
 
         parts = [p.strip() for p in sequence_str.split(",")]
 
@@ -67,8 +69,18 @@ class SequenceParser:
             # Try relay pattern
             relay_match = cls.RELAY_PATTERN.match(part)
             if relay_match:
-                relay_num = int(relay_match.group(1))
+                relay_id = relay_match.group(1).lower()
                 on = relay_match.group(2).upper() == "ON"
+
+                # Try to parse as number first, then check aliases
+                try:
+                    relay_num = int(relay_id)
+                except ValueError:
+                    # Not a number, check if it's an alias
+                    if relay_id in relay_aliases:
+                        relay_num = relay_aliases[relay_id]
+                    else:
+                        raise ValueError(f"Unknown relay alias: {relay_id}")
 
                 if not 0 <= relay_num <= 15:
                     raise ValueError(f"Relay number must be 0-15, got {relay_num}")
@@ -91,16 +103,20 @@ class SequenceParser:
 class SequenceExecutor:
     """Executes parsed command sequences."""
 
-    def __init__(self, relay_controller: RelayController, verbose: bool = True):
+    def __init__(
+        self, relay_controller: RelayController, verbose: bool = True, relay_aliases: dict[str, int] = None
+    ):
         """
         Initialize executor.
 
         Args:
             relay_controller: Connected relay controller
             verbose: If True, print commands as they execute
+            relay_aliases: Optional dict mapping alias names to relay numbers
         """
         self.relay = relay_controller
         self.verbose = verbose
+        self.relay_aliases = relay_aliases or {}
 
     def execute(self, commands: list[Command]) -> None:
         """
@@ -121,5 +137,5 @@ class SequenceExecutor:
 
     def execute_string(self, sequence_str: str) -> None:
         """Parse and execute a sequence string."""
-        commands = SequenceParser.parse(sequence_str)
+        commands = SequenceParser.parse(sequence_str, relay_aliases=self.relay_aliases)
         self.execute(commands)

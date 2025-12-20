@@ -26,19 +26,20 @@ class InteractiveMode:
         self,
         relay_controller: Optional[RelayController] = None,
         executor: Optional[SequenceExecutor] = None,
+        relay_aliases: Optional[dict[str, int]] = None,
     ):
         self.relay = relay_controller
         self.executor = executor or (
-            SequenceExecutor(relay_controller, verbose=True)
+            SequenceExecutor(relay_controller, verbose=True, relay_aliases=relay_aliases)
             if relay_controller
             else None
         )
+        self.relay_aliases = relay_aliases or {}
         self._running = False
 
     def print_help(self) -> None:
         """Print help message."""
-        print(
-            """
+        help_text = """
 Interactive Hardware Tester Commands:
 =====================================
   r<N> on       Turn relay N on (0-15)
@@ -57,7 +58,14 @@ Examples:
   raw FE050001FF00FD
   seq R1:ON,D500,R1:OFF
 """
-        )
+        print(help_text)
+
+        if self.relay_aliases:
+            print("Configured Relay Aliases:")
+            print("=" * 37)
+            for alias, relay_num in sorted(self.relay_aliases.items()):
+                print(f"  {alias:<20} -> Relay {relay_num}")
+            print()
 
     def process_command(self, line: str) -> bool:
         """
@@ -89,20 +97,34 @@ Examples:
                 print("Relay port: not connected")
             return True
 
-        # Relay command: r1 on, r15 off
-        relay_match = re.match(r"^r(\d+)\s+(on|off)$", line_lower)
+        # Relay command: r1 on, r15 off, or ralias on/off
+        relay_match = re.match(r"^r([a-z0-9_]+)\s+(on|off)$", line_lower)
         if relay_match:
             if not self.relay:
                 print("Error: No relay port configured")
                 return True
 
-            relay_num = int(relay_match.group(1))
+            relay_id = relay_match.group(1)
             on = relay_match.group(2) == "on"
+
+            # Try to parse as number first, then check aliases
+            try:
+                relay_num = int(relay_id)
+            except ValueError:
+                # Not a number, check if it's an alias
+                if relay_id in self.relay_aliases:
+                    relay_num = self.relay_aliases[relay_id]
+                else:
+                    print(f"Error: Unknown relay alias '{relay_id}'")
+                    return True
 
             try:
                 self.relay.set_relay(relay_num, on)
                 state = "ON" if on else "OFF"
-                print(f"Relay {relay_num} -> {state}")
+                if relay_id.isdigit():
+                    print(f"Relay {relay_num} -> {state}")
+                else:
+                    print(f"Relay {relay_id} (#{relay_num}) -> {state}")
             except ValueError as e:
                 print(f"Error: {e}")
             except Exception as e:

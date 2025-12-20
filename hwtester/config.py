@@ -27,6 +27,7 @@ class Config:
 
     # Relay settings
     relay_port: Optional[str] = None
+    relay_aliases: dict[str, int] = field(default_factory=dict)
 
     # DUT port settings
     dut_ports: list[DUTPortConfig] = field(default_factory=list)
@@ -61,7 +62,16 @@ def load_config(config_path: Path) -> Config:
 
     # Relay port
     if "relay" in data:
-        config.relay_port = data["relay"].get("port")
+        relay_section = data["relay"]
+        config.relay_port = relay_section.get("port")
+
+        # Load relay aliases
+        if "aliases" in relay_section:
+            aliases = relay_section["aliases"]
+            for name, relay_num in aliases.items():
+                if not isinstance(relay_num, int) or not 0 <= relay_num <= 15:
+                    raise ValueError(f"Relay alias '{name}' has invalid relay number: {relay_num}")
+                config.relay_aliases[name] = relay_num
 
     # DUT ports
     if "dut" in data:

@@ -83,7 +83,7 @@ def main() -> int:
         # Execute based on mode
         if args.interactive:
             # Interactive mode
-            interactive = InteractiveMode(relay_controller)
+            interactive = InteractiveMode(relay_controller, relay_aliases=config.relay_aliases)
             interactive.run()
 
         elif args.sequence:
@@ -95,7 +95,9 @@ def main() -> int:
                 )
                 return 1
 
-            executor = SequenceExecutor(relay_controller, verbose=not args.quiet)
+            executor = SequenceExecutor(
+                relay_controller, verbose=not args.quiet, relay_aliases=config.relay_aliases
+            )
             try:
                 executor.execute_string(args.sequence)
             except ValueError as e:
@@ -115,7 +117,9 @@ def main() -> int:
                 )
                 return 1
 
-            executor = SequenceExecutor(relay_controller, verbose=not args.quiet)
+            executor = SequenceExecutor(
+                relay_controller, verbose=not args.quiet, relay_aliases=config.relay_aliases
+            )
             try:
                 executor.execute_string(config.sequence)
             except ValueError as e:
