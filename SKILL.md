@@ -32,19 +32,19 @@ pip install tomli
 Run hwtester using Python's `-m` flag from the skill directory:
 
 ```bash
-# From the skill directory (.claude/skills/test-hardware/)
+# From the skill directory (.claude/skills/hwtester/)
 python -m hwtester [args]
 ```
 
 Or use the full module path with PYTHONPATH:
 
 ```bash
-PYTHONPATH=/path/to/.claude/skills/test-hardware python -m hwtester [args]
+PYTHONPATH=/path/to/.claude/skills/hwtester python -m hwtester [args]
 ```
 
 On Windows:
 ```bash
-set PYTHONPATH=C:\path\to\.claude\skills\test-hardware && python -m hwtester [args]
+set PYTHONPATH=C:\path\to\.claude\skills\hwtester && python -m hwtester [args]
 ```
 
 ## Finding Test Configuration Files
@@ -212,7 +212,7 @@ Claude: Executing test...
 
 ### Workflow 3: No Config
 ```
-User: /test-hardware
+User: /hwtester
 Claude: No test configuration found. Let me check available serial ports...
 
         Available ports: COM3, COM4, COM5, COM9
