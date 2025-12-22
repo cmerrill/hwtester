@@ -171,6 +171,8 @@ After test execution, analyze the DUT log files:
    - **Failure**: Error messages, timeouts, unexpected behavior
    - **Partial**: Some expected output but incomplete
 
+   **IMPORTANT**: These files may show up as binary. Make sure to use `grep -a` to ALWAYS treat the logs as text.
+
 3. Present analysis to user:
    ```
    Test Results Analysis:
