@@ -42,11 +42,6 @@ Or use the full module path with PYTHONPATH:
 PYTHONPATH=/path/to/.claude/skills/hwtester python -m hwtester [args]
 ```
 
-On Windows:
-```bash
-set PYTHONPATH=C:\path\to\.claude\skills\hwtester && python -m hwtester [args]
-```
-
 ## Finding Test Configuration Files
 
 Look for TOML configuration files in this order:
