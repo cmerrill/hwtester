@@ -3,7 +3,7 @@ name: hwtester
 description: Execute firmware tests on real hardware using hwtester. Use when the user asks to run hardware tests, execute firmware tests, control relays, log DUT serial output, or work with test TOML configuration files. Triggers on keywords like "hardware test", "firmware test", "relay", "DUT", "hwtester", or "/hwtester".
 ---
 
-# Hardware Firmware Testing Skill
+# Hardware & Firmware Testing Skill
 
 This skill enables Claude to execute firmware tests on real hardware using the `hwtester` Python package. It controls relay boards to manipulate hardware signals and logs serial output from Devices Under Test (DUTs).
 
@@ -141,6 +141,9 @@ Full Command Sequence:
 ```
 
 ## Executing Tests
+
+### Flashing the test hardware
+Unless the user has explicitly confirmed that the hardware has been flashed with the lastest version of the firmware, you MUST flash all of the test devices. If you do not have instructions for flashing them, ask the user to assist before continuing. 
 
 ### Single Test
 ```bash
